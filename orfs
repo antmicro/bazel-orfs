@@ -2,7 +2,7 @@
 set -ex
 ORFS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-export ORFS=~/OpenROAD-flow-scripts
+export ORFS=$HOME/OpenROAD-flow-scripts
 export FLOW_HOME=$ORFS/flow
 export MAKEFILES=$FLOW_HOME/Makefile
 

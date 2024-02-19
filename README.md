@@ -4,7 +4,7 @@ This repository contains [Bazel](https://bazel.build/) rules for wrapping Physic
 
 ## Requirements
 
-* [OpenROAD-flow-scripts](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts) - must reside under `~/OpenROAD-flow-scripts`. `bazel-orfs` intentionally does not treat OpenROAD-flow-scripts as a installable versioned tool, but prefers to rely on `~/OpenROAD-flow-scripts` such that it is easy to hack ORFS and OpenROAD.
+* [OpenROAD-flow-scripts](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts) - must reside under `$HOME/OpenROAD-flow-scripts`. `bazel-orfs` intentionally does not treat OpenROAD-flow-scripts as a installable versioned tool, but prefers to rely on `~/OpenROAD-flow-scripts` such that it is easy to hack ORFS and OpenROAD.
 * [Bazelisk](https://bazel.build/install/bazelisk) or [Bazel](https://bazel.build/install) - if using `bazel`, please refer to `.bazelversion` file for the recommended version of the tool.
 
 ## Usage
