@@ -3,3 +3,14 @@ module(
     version = "0.0.1",
     compatibility_level = 1,
 )
+
+bazel_dep(name = "rules_oci", version = "1.7.4")
+
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "orfs_image",
+    digest = "sha256:ff9f4275d86a15abdf895e26d21b83625ef18dbbc10c43231e0609daf3af91e5",
+    image = "ghcr.io/antmicro/openroad-flow-scripts/ubuntu22.04",
+    platforms = ["linux/amd64"],
+)
+use_repo(oci, "orfs_image")
