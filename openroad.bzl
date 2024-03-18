@@ -147,7 +147,6 @@ def write_config(
         name = name,
         srcs = [
             Label("//:config_common.mk"),
-            Label("//:rules.mk"),
         ],
         cmd = """
                echo \"# Common config\" > $@
@@ -155,7 +154,7 @@ def write_config(
                echo \"\n# Design config\" >> $@
                echo \"""" + export_env + """\" >> $@
                echo \"# Make rules\" >> $@
-               cat $(location """ + str(Label("//:rules.mk")) + """) >> $@
+               echo \"include \\$$(BUILD_DIR)/\\$$(MAKE_PATTERN)\" >> $@
               """,
         outs = [name + ".mk"],
     )
@@ -481,11 +480,12 @@ def build_openroad(
     )
 
     for ((_, previous), (i, stage)) in zip([(0, "n/a")] + enumerate(stages), enumerate(stages)):
+        make_pattern = stage + "-bazel.mk"
         native.genrule(
             name = target_name + "_" + stage,
             tools = [Label("//:docker_shell")],
-            srcs = ["//:orfs_env"] + stage_sources[stage] + [target_name + "_config.mk"] + ([name + target_ext + "_" + previous] if stage not in ("clock_period", "synth_sdc", "synth") else []) +
+            srcs = ["//:orfs_env", make_pattern] + stage_sources[stage] + [target_name + "_config.mk"] + ([name + target_ext + "_" + previous] if stage not in ("clock_period", "synth_sdc", "synth") else []) +
                    ([name + target_ext + "_generate_abstract_mock_area"] if mock_area != None and stage == "generate_abstract" else []),
-            cmd = "OR_IMAGE=bazel-orfs/orfs_env:latest RULEDIR=$(RULEDIR) DESIGN_NAME=" + target_name + " CONFIG=$(location " + str(Label("//:" + target_name + "_config.mk")) + ") $(location " + str(Label("//:docker_shell")) + ") " + "make bazel-" + stage + ("_mock_area" if mock_area != None and stage == "generate_abstract" else "") + " elapsed",
+            cmd = "OR_IMAGE=bazel-orfs/orfs_env:latest MAKE_PATTERN=$(location " + str(make_pattern) + ") RULEDIR=$(RULEDIR) DESIGN_NAME=" + target_name + " CONFIG=$(location " + str(Label("//:" + target_name + "_config.mk")) + ") $(location " + str(Label("//:docker_shell")) + ") " + "make bazel-" + stage + ("_mock_area" if mock_area != None and stage == "generate_abstract" else "") + " elapsed",
             outs = outs.get(stage, []),
         )
