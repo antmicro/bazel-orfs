@@ -190,7 +190,7 @@ def get_docker_shell_cmd(
     cmd += " CONFIG=$(location " + str(design_config) + ")"
     cmd += " $(location " + str(docker_shell) + ")"
     cmd += " make "
-    cmd += "bazel-" + stage + ("_mock_area" if mock_area != None and stage == "generate_abstract" else "") + " elapsed"
+    cmd += "bazel-" + stage + ("_mock_area" if ((mock_area != None and stage == "generate_abstract") or (stage == "floorplan")) else "") + " elapsed"
 
     return cmd
 
@@ -473,26 +473,29 @@ def build_openroad(
     if mock_area != None:
         mock_stages = ["clock_period", "synth", "synth_sdc", "floorplan", "generate_abstract"]
         for (previous, stage) in zip(["n/a"] + mock_stages, mock_stages):
+            make_pattern = Label("//:" + stage + "-bazel.mk")
+            design_config = Label("//:" + target_name + "_config.mk")
             native.genrule(
                 name = target_name + "_" + stage + "_mock_area",
                 tools = [Label("//:docker_shell")],
-                srcs = ["//:orfs_env"] + make_sources + stage_sources[stage] + ([name + target_ext + "_" + stage, Label("mock_area.tcl")] if stage == "floorplan" else []) +
+                srcs = ["//:orfs_env"] + [target_name + "_config.mk"] + make_sources + stage_sources[stage] + ([name + target_ext + "_" + stage, Label("mock_area.tcl")] if stage == "floorplan" else []) +
                        ([name + target_ext + "_" + previous + "_mock_area"] if stage != "clock_period" else []) +
                        ([name + target_ext + "_synth_mock_area"] if stage == "floorplan" else []),
-                cmd = "OR_IMAGE=bazel-orfs/orfs_env:latest $(location " + str(Label("//:docker_shell")) + ") " +
-                      " ".join(wrap_args(make_args, False)) +
-                      " ".join(wrap_args([s for s in stage_args[stage] if not any([sub in s for sub in ("DIE_AREA", "CORE_AREA", "CORE_UTILIZATION")])], False)) +
-                      " " +
-                      " ".join(wrap_args([
-                          "FLOW_VARIANT=mock_area",
-                          "bazel-" + stage + ("-mock_area" if stage == "floorplan" else ""),
-                      ], False)) +
-                      " " +
-                      " ".join(wrap_args({
-                          "floorplan": ["MOCK_AREA=" + str(mock_area), "MOCK_AREA_TCL=$(location " + str(Label("mock_area.tcl")) + ")"],
-                          "synth": ["SYNTH_GUT=1"],
-                          "generate_abstract": ["ABSTRACT_SOURCE=2_floorplan"],
-                      }.get(stage, []), False)),
+                cmd = get_docker_shell_cmd(make_pattern, target_name, design_config, stage, mock_area),
+				      #"OR_IMAGE=bazel-orfs/orfs_env:latest $(location " + str(Label("//:docker_shell")) + ") " +
+                      #" ".join(wrap_args(make_args, False)) +
+                      #" ".join(wrap_args([s for s in stage_args[stage] if not any([sub in s for sub in ("DIE_AREA", "CORE_AREA", "CORE_UTILIZATION")])], False)) +
+                      #" " +
+                      #" ".join(wrap_args([
+                      #    "FLOW_VARIANT=mock_area",
+                      #    "bazel-" + stage + ("-mock_area" if stage == "floorplan" else ""),
+                      #], False)) +
+                      #" " +
+                      #" ".join(wrap_args({
+                      #    "floorplan": ["MOCK_AREA=" + str(mock_area), "MOCK_AREA_TCL=$(location " + str(Label("mock_area.tcl")) + ")"],
+                      #    "synth": ["SYNTH_GUT=1"],
+                      #    "generate_abstract": ["ABSTRACT_SOURCE=2_floorplan"],
+                      #}.get(stage, []), False)),
                 outs = [s.replace("/" + variant + "/", "/mock_area/") for s in outs.get(stage, [])],
             )
 
