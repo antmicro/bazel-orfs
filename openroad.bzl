@@ -181,7 +181,7 @@ def get_make_targets(
     if (mock_area != None and stage == "generate_abstract"):
         targets += "_mock_area"
     elif (do_mock_area and stage == "floorplan"):
-        targets += "_mock_area"
+        targets += "-mock_area"
     targets += " elapsed"
 
     return targets
