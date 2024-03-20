@@ -334,8 +334,11 @@ def build_openroad(
     libs_args = (["ADDITIONAL_LIBS=" + ADDITIONAL_LIBS] if len(macros) > 0 else [])
     # gds_args = (["ADDITIONAL_GDS_FILES=" + ADDITIONAL_GDS_FILES] if len(macros) > 0 else [])
 
+    extended_verilog_files = []
+    for file in verilog_files:
+        extended_verilog_files.append("\\$$(BUILD_DIR)/" + file)
     stage_args["synth"] = stage_args.get("synth", []) + [
-        "VERILOG_FILES=" + "\\$$(BUILD_DIR)/ ".join(set(verilog_files)),
+        "VERILOG_FILES=" + " ".join(extended_verilog_files),
         "SDC_FILE_CLOCK_PERIOD=\\$$(BUILD_DIR)/" + SDC_FILE_CLOCK_PERIOD,
     ]
     stage_args["floorplan"] = stage_args.get("floorplan", []) + (
