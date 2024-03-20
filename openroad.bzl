@@ -370,7 +370,7 @@ def build_openroad(
     stage_args["floorplan"] = stage_args.get("floorplan", []) + (
         [] if len(macros) == 0 else [
             "CORE_MARGIN=4",
-            "PDN_TCL='\\$${PLATFORM_DIR}/openRoad/pdn/BLOCKS_grid_strategy.tcl'",
+            "PDN_TCL=\\$${PLATFORM_DIR}/openRoad/pdn/BLOCKS_grid_strategy.tcl",
         ]
     ) + io_constraints_args + (["MACROS=" + " ".join(set(macros))] if len(macros) > 0 else [])
 
