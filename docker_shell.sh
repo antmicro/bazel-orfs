@@ -20,7 +20,7 @@ export WORKSPACE_ORIGIN=$(dirname $(realpath $WORKSPACE/WORKSPACE))
 
 # Most of these options below has to do with allowing to
 # run the OpenROAD GUI from within Docker.
-docker run -u $(id -u ${USER}):$(id -g ${USER}) \
+docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) \
  -e LIBGL_ALWAYS_SOFTWARE=1 \
  -e "QT_X11_NO_MITSHM=1" \
  -e XDG_RUNTIME_DIR=/tmp/xdg-run \
