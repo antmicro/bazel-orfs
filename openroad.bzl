@@ -142,6 +142,7 @@ def write_config(
         export_env += "export " + env_var + "\n"
 
     export_env += "export DESIGN_NICKNAME=" + design_nickname + "\n"
+    export_env += "export DESIGN_NAME=" + design_nickname + "\n"
 
     native.genrule(
         name = name,
