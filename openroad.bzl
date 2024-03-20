@@ -350,9 +350,9 @@ def build_openroad(
 
     stage_args = dict(stage_args)
 
-    ADDITIONAL_LEFS = " ".join(map(lambda m: "$(RULEDIR)/results/" + platform + "/%s/%s/%s.lef" % (m, macro_variants.get(m, macro_variant), m), macros))
-    ADDITIONAL_LIBS = " ".join(map(lambda m: "$(RULEDIR)/results/" + platform + "/%s/%s/%s.lib" % (m, macro_variants.get(m, macro_variant), m), macros))
-    # ADDITIONAL_GDS_FILES = " ".join(map(lambda m: "$(RULEDIR)/results/" + platform + "/%s/%s/6_final.gds" % (m, macro_variants.get(m, macro_variant)), macros))
+    ADDITIONAL_LEFS = " ".join(map(lambda m: "\\$$(BUILD_DIR)/$(RULEDIR)/results/" + platform + "/%s/%s/%s.lef" % (m, macro_variants.get(m, macro_variant), m), macros))
+    ADDITIONAL_LIBS = " ".join(map(lambda m: "\\$$(BUILD_DIR)/$(RULEDIR)/results/" + platform + "/%s/%s/%s.lib" % (m, macro_variants.get(m, macro_variant), m), macros))
+    # ADDITIONAL_GDS_FILES = " ".join(map(lambda m: "\\$$(BUILD_DIR)/$(RULEDIR)/results/" + platform + "/%s/%s/6_final.gds" % (m, macro_variants.get(m, macro_variant)), macros))
 
     io_constraints_args = ["IO_CONSTRAINTS=\\$$(BUILD_DIR)/" + io_constraints] if io_constraints != None else []
 
