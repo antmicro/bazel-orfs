@@ -15,7 +15,6 @@ if test -t 0; then
 fi
 
 export FLOW_HOME="/OpenROAD-flow-scripts/flow/"
-export MAKEFILES="$FLOW_HOME/Makefile"
 export DESIGN_CONFIG="$WORKSPACE/$CONFIG"
 export WORKSPACE_ORIGIN=$(dirname $(realpath $WORKSPACE/WORKSPACE))
 
@@ -31,7 +30,6 @@ docker run -u $(id -u ${USER}):$(id -g ${USER}) \
  -e BUILD_DIR=$WORKSPACE \
  -e FLOW_HOME=$FLOW_HOME \
  -e MAKE_PATTERN=$MAKE_PATTERN \
- -e MAKEFILES=$MAKEFILES \
  -e DESIGN_CONFIG=$DESIGN_CONFIG \
  -e WORK_HOME=$WORKSPACE/$RULEDIR \
  -v $WORKSPACE:$WORKSPACE \
