@@ -26,6 +26,8 @@ docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) \
  -e XDG_RUNTIME_DIR=/tmp/xdg-run \
  -e DISPLAY=$DISPLAY \
  -e QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb \
+ -v $XSOCK:$XSOCK \
+ -v $XAUTH:$XAUTH \
  -e XAUTHORITY=$XAUTH \
  -e BUILD_DIR=$WORKSPACE \
  -e FLOW_HOME=$FLOW_HOME \
