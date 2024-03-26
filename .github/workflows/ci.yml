@@ -56,10 +56,6 @@ jobs:
           sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
           sudo apt-get update -y
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-      - name: Check docker
-        shell: bash
-        run: |
-          docker --version
       - name: Print info
         run: |
           echo "USER: "$(whoami)
@@ -71,8 +67,12 @@ jobs:
           source ./env.sh
           yosys --version
           openroad -version
+          docker --version
       - name: Checkout bazel-orfs
         uses: actions/checkout@v4
+      - name: load docker image
+        run: |
+          bazel run --subcommands --verbose_failures --sandbox_debug orfs_env
       - name: query target
         run: |
           bazel query ${{ matrix.STAGE_TARGET }}
