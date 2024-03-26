@@ -26,8 +26,6 @@ jobs:
   build-stage-target:
     name: Build sample stage targets
     runs-on: ubuntu-22.04
-    container:
-      image: ghcr.io/antmicro/bazel-orfs@sha256:78b4c15830d75e026dc2294b280cb5ff1200f6ee7902a714dca71fd61b5b2e4e
     defaults:
       run:
         shell: bash
@@ -38,11 +36,6 @@ jobs:
     env:
       DEBIAN_FRONTEND: "noninteractive"
     steps:
-      # Workaround for https://github.com/actions/runner/issues/863
-      - name: Override HOME env var
-        shell: bash
-        run: |
-          echo HOME=/root | sudo tee -a $GITHUB_ENV
       - name: Install docker
         shell: bash
         run: |
