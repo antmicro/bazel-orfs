@@ -58,6 +58,8 @@ jobs:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          swap-storage: false
       - name: Print info
         run: |
           echo "USER: "$(whoami)
