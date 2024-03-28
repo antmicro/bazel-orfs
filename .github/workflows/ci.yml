@@ -97,21 +97,21 @@ jobs:
           for stage in "synth_sdc" "synth" "floorplan" "generate_abstract"
           do
             echo "query make script target"
-            bazel query tag_array_64x184_$stage_make
-            bazel query tag_array_64x184_$stage_make --output=build
+            bazel query tag_array_64x184_${stage}_make
+            bazel query tag_array_64x184_${stage}_make --output=build
             echo "build make script"
-            bazel build --subcommands --verbose_failures --sandbox_debug tag_array_64x184_$stage_make
+            bazel build --subcommands --verbose_failures --sandbox_debug tag_array_64x184_${stage}_make
             echo "run make script"
-            ./bazel-bin/tag_array_64x184_$stage_make bazel-$stage
+            ./bazel-bin/tag_array_64x184_${stage}_make bazel-${stage}
           done
           echo "Build L1MetadataArray"
           for stage in "synth_sdc" "synth" "floorplan" "place" "cts" "grt" "generate_abstract"
           do
             echo "query make script target"
-            bazel query L1MetadataArray_$stage_make
-            bazel query L1MetadataArray_$stage_make --output=build
+            bazel query L1MetadataArray_${stage}_make
+            bazel query L1MetadataArray_${stage}_make --output=build
             echo "build make script"
-            bazel build --subcommands --verbose_failures --sandbox_debug L1MetadataArray_$stage_make
+            bazel build --subcommands --verbose_failures --sandbox_debug L1MetadataArray_${stage}_make
             echo "run make script"
-            ./bazel-bin/L1MetadataArray_$stage_make bazel-$stage
+            ./bazel-bin/L1MetadataArray_${stage}_make bazel-${stage}
           done
