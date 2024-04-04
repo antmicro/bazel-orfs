@@ -115,13 +115,10 @@ Config generation targets:
   //:L1MetadataArray_test_generate_abstract_config.mk
 ```
 
-The example comes from the `BUILD` file in this repository. For details about targets spawned by this macro please refer to `Implementation` chapter.
+The example comes from the `BUILD` file in this repository.
+For details about targets spawned by this macro please refer to `Implementation` chapter.
 
 ## Implementation
-
-### orfs script
-
-This script loads the ORFS environment and evaluates the rest of the command line that called the script.
 
 ### openroad.bzl
 
@@ -132,7 +129,7 @@ There are 5 kinds of genrules spawned in this macro:
 
 * Config generation targets
   * Common for the whole design (named: `target_name + “_config”`)
-  * Common for the whole design (named: `target_name + “_” + stage + “_config”`)
+  * ORFS stage-specific config (named: `target_name + “_” + stage + “_config”`)
 * Stage targets (named: `target_name + “_” + stage`)
 * Make targets (named: `target_name + “_” + stage + “_make”`)
 * Mock Area targets (named: `target_name + “_” + stage + “_mock_area”`)
@@ -142,7 +139,7 @@ There are two kinds of flows available:
 * docker flow (Stage targets)
 * local flow (Make targets)
 
-Docker flow uses containerized environment with preinstalled ORFS to run the physical design flow, while the local flow (`_make` bazel targets) depends on the locally installed ORFS (specifically under `~/OpenROAD-flow-scripts`)
+Docker flow uses containerized environment with preinstalled ORFS to run the physical design flow, while the local flow (`_make` bazel targets) depends on the locally installed ORFS (specifically under `~/OpenROAD-flow-scripts`).
 Each stage of the physical design flow depend on two generated `config.mk` files that provide the configuration for the ORFS.
 One is specific for the stage of the flow and the second one is common for the whole design being built.
 Design-specific config includes the stage-specific config through `STAGE_CONFIG` environment variable that is set in the `build_openroad()` macro implementation.
@@ -150,14 +147,16 @@ Both docker and local flow does the same thing: for each stage of the physical d
 
 #### Entrypoint scripts
 
-There is one entrypoint script for each kinf of the flow. For the local flow it is the `orfs` script and for the docker flow it's `docker_shell` script.
-Both of these scripts have the same responsibility of preparing and entering the ORFS build environment and then executing the build command prepared for given ORFS stage.
-`orfs` does this by seting some initial environment variables and sourcing `env.sh` from ORFS.
-`docker_shell` is very simillar in that matter exept it runs the flow in a docker container.
+There is one entrypoint script for each kind of the flow.
+For the local flow it is the `orfs` script and for the docker flow it's the `docker_shell` script.
+Both of those scripts have the same responsibility of preparing and entering the ORFS build environment and then executing the build command prepared for given ORFS stage.
+`orfs` does this by setting some initial environment variables and sourcing `env.sh` from ORFS.
+`docker_shell` is very similar in that matter except it runs the flow in a docker container.
 
 #### Stage Targets
 
-Main rules for executing each ORFS stage (synthesis, floorplan, clock tree synthesis, place, route, etc.). The outputs and inputs are different for each ORFS stage and are defined by macro arguments and the implementation of the macro.
+Main rules for executing each ORFS stage (synthesis, floorplan, clock tree synthesis, place, route, etc.).
+The outputs and inputs are different for each ORFS stage and are defined by macro arguments and the implementation of the macro.
 Those targets are built with the docker flow.
 Before running stage targets it is required to first fetch and load ORFS docker image into local docker runtime.
 This can be done with the following `run` rule:
@@ -169,7 +168,8 @@ bazel run orfs_env
 #### Make Targets
 
 Those scripts are used for local tests of ORFS stages and are built with locally installed ORFS.
-Two targets are spawned for each ORFS stage. First generates a shell script, second makes it executable from `bazel-bin` directory. The final usable script is generated under path:
+Two targets are spawned for each ORFS stage. First generates a shell script, second makes it executable from `bazel-bin` directory.
+The final usable script is generated under path:
 
 ```
 bazel-bin/<target_name>_make
@@ -179,8 +179,11 @@ The shell script is produced by `genrule` by concatenating template script `make
 The entrypoint command consists of a call to `orfs`, essential environment variables definitions (e.g. with paths to generated `config.mk` files) and physical design make targets to execute in ORFS environment.
 Template file contains boilerplate code for enabling features of [bazel bash runfiles library](https://github.com/bazelbuild/bazel/blob/master/tools/bash/runfiles/runfiles.bash).
 The runfiles library is used for accessing script dependencies stored in `runfiles` driectory.
-Attribute `srcs` of the genrule contains dependencies required for running the script (e.g.: `orfs` script, make target patterns, configs). Those dependencies don't include results of previous flow stages and because of that, it is required to build those before running the generated script.
-In the second rule (`sh_binary`) the `runfiles` directory for the script is created and filled with dependencies so that the script can be executed straight from the output directory. It is important to remember that, by default, bazel output directory is not writeable so running the ORFS flow with generated script will fail unless correct permissions are set for the directory. Example usage of `Make` targets can look like this:
+Attribute `srcs` of the genrule contains dependencies required for running the script (e.g.: `orfs` script, make target patterns, configs).
+Those dependencies don't include results of previous flow stages and because of that, it is required to build those before running the generated script.
+In the second rule (`sh_binary`) the `runfiles` directory for the script is created and filled with dependencies so that the script can be executed straight from the output directory.
+It is important to remember that, by default, bazel output directory is not writeable so running the ORFS flow with generated script will fail unless correct permissions are set for the directory.
+Example usage of `Make` targets can look like this:
 
 ```
 bazel build $(bazel query "deps(L1MetadataArray_test_floorplan) except L1MetadataArray_test_floorplan")
@@ -190,7 +193,8 @@ bazel build L1MetadataArray_test_floorplan_make
 
 #### Mock Area Targets
 
-Those targets are used to run particular stages of the flow with a scaled area of the module evaluated in a given target. Used for estimating sizes of macros with long build times and checking if they will fit in upper-level modules without running time consuming place and route flow.
+Those targets are used to run particular stages of the flow with a scaled area of the module evaluated in a given target.
+Used for estimating sizes of macros with long build times and checking if they will fit in upper-level modules without running time consuming place and route flow.
 
 #### Memory Targets
 
@@ -234,4 +238,3 @@ Here is the example:
 set script_path [ file dirname $::env(IO_CONSTRAINTS) ]
 source $script_path/util.tcl
 ```
-
