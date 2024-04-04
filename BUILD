@@ -92,12 +92,11 @@ build_openroad(
 
 build_openroad(
     name = "L1MetadataArray",
-	variant = "full",
     io_constraints = ":io",
     macros = ["tag_array_64x184"],
     sdc_constraints = ":test/constraints-top.sdc",
     stage_args = {
-	"synth": ["SYNTH_HIERARCHICAL=1"],
+        "synth": ["SYNTH_HIERARCHICAL=1"],
         "floorplan": [
             "CORE_UTILIZATION=3",
             "RTLMP_FLOW=True",
@@ -109,6 +108,7 @@ build_openroad(
             "PLACE_PINS_ARGS=-annealing",
         ],
     },
+    variant = "full",
     verilog_files = ["test/rtl/L1MetadataArray.sv"],
 )
 
