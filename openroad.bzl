@@ -250,7 +250,7 @@ def get_entrypoint_cmd(
     cmd += " STAGE_CONFIG=$(location " + str(stage_config) + ")"
     cmd += " MAKE_PATTERN=$(location " + str(make_pattern) + ")"
     if (mock_area):
-        cmd += "MOCK_AREA_TCL=$(location " + str(Label("//:mock_area.tcl")) + ")"
+        cmd += " MOCK_AREA_TCL=$(location " + str(Label("//:mock_area.tcl")) + ")"
     cmd += " RULEDIR=$(RULEDIR)"
     cmd += " $(location " + str(entrypoint) + ")"
     cmd += " make "
