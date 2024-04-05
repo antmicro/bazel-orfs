@@ -303,7 +303,7 @@ def mock_area_stages(
     write_config(
         name = name + "_mock_area_config",
         design_name = design_name,
-        variant = "mock_area",
+        variant = variant,
         additional_cfg = mock_area_env_list,
     )
 
@@ -321,7 +321,7 @@ def mock_area_stages(
             name = name + "_" + stage + "_mock_area_config",
             stage = stage,
             srcs = stage_cfg_srcs,
-            stage_args = mock_area_stage_args[stage],
+            stage_args = mock_area_stage_args[stage] + (["FLOW_VARIANT=mock_area"] if (stage != "generate_abstract") else []),
         )
         make_pattern = Label("//:" + stage + "-bazel.mk")
         design_config = Label("@@//:" + name + "_mock_area_config.mk")
