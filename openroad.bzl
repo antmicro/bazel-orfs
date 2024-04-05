@@ -155,9 +155,9 @@ def write_config(
                echo \"\n# Additional config\" >> $@
                echo \"""" + add_cfg + """\" >> $@
                echo \"\n# Stage config\" >> $@
-               echo \"include \\$$(BUILD_DIR)/\\$$(STAGE_CONFIG)\" >> $@
+               echo \"include \\$$(STAGE_CONFIG)\" >> $@
                echo \"# Make rules\" >> $@
-               echo \"include \\$$(BUILD_DIR)/\\$$(MAKE_PATTERN)\" >> $@
+               echo \"include \\$$(MAKE_PATTERN)\" >> $@
               """,
         outs = [name + ".mk"],
     )
@@ -244,14 +244,8 @@ def get_entrypoint_cmd(
     cmd = ""
     if (docker_image != None):
         cmd += "OR_IMAGE=" + docker_image
-
-        # Docker flow requires intermediate step of redefining env vars passed to the container
-        # Hence the different names
-        cmd += " DESIGN_CFG=$(location " + str(design_config) + ")"
-        cmd += " STAGE_CFG=$(location " + str(stage_config) + ")"
-    else:
-        cmd += "DESIGN_CONFIG=$(location " + str(design_config) + ")"
-        cmd += " STAGE_CONFIG=$(location " + str(stage_config) + ")"
+    cmd += " DESIGN_CONFIG=$(location " + str(design_config) + ")"
+    cmd += " STAGE_CONFIG=$(location " + str(stage_config) + ")"
     cmd += " MAKE_PATTERN=$(location " + str(make_pattern) + ")"
     cmd += " RULEDIR=$(RULEDIR)"
     cmd += " $(location " + str(entrypoint) + ")"
@@ -315,9 +309,9 @@ def mock_area_stages(
     for (previous, stage) in zip(["n/a"] + mock_stages, mock_stages):
         stage_cfg_srcs = []
         if sdc_constraints != None:
-            stage_cfg_srcs.append(Label(sdc_constraints))
+            stage_cfg_srcs.append(sdc_constraints)
         if io_constraints != None:
-            stage_cfg_srcs.append(Label(io_constraints))
+            stage_cfg_srcs.append(io_constraints)
 
         # Generate config for stage targets
         write_stage_config(
@@ -334,7 +328,7 @@ def mock_area_stages(
         native.genrule(
             name = name + "_" + stage + "_mock_area",
             tools = [Label("//:docker_shell")],
-            srcs = ["//:orfs_env", make_pattern, design_config, stage_config] +
+            srcs = [make_pattern, design_config, stage_config] +
                    stage_sources[stage] +
                    ([name + "_" + stage, Label("mock_area.tcl")] if stage == "floorplan" else []) +
                    ([name + "_" + previous + "_mock_area"] if stage != "clock_period" else []) +
@@ -677,9 +671,9 @@ def build_openroad(
         # Generate config for stage targets
         stage_cfg_srcs = []
         if sdc_constraints != None:
-            stage_cfg_srcs.append(Label(sdc_constraints))
+            stage_cfg_srcs.append(sdc_constraints)
         if io_constraints != None:
-            stage_cfg_srcs.append(Label(io_constraints))
+            stage_cfg_srcs.append(io_constraints)
         write_stage_config(
             name = target_name + "_" + stage + "_config",
             stage = stage,
@@ -688,14 +682,14 @@ def build_openroad(
         )
 
         make_pattern = Label("//:" + stage + "-bazel.mk")
-        design_config = Label("//:" + target_name + "_config.mk")
-        stage_config = Label("//:" + target_name + "_" + stage + "_config.mk")
+        design_config = Label("@@//:" + target_name + "_config.mk")
+        stage_config = Label("@@//:" + target_name + "_" + stage + "_config.mk")
         make_targets = get_make_targets(stage, False, mock_area)
 
         native.genrule(
             name = target_name + "_" + stage,
             tools = [Label("//:docker_shell")],
-            srcs = ["//:orfs_env", make_pattern] + stage_sources[stage] + [design_config, stage_config] + ([name + target_ext + "_" + previous] if stage not in ("clock_period", "synth_sdc") else []) +
+            srcs = [make_pattern, design_config, stage_config] + stage_sources[stage] + ([name + target_ext + "_" + previous] if stage not in ("clock_period", "synth_sdc") else []) +
                    ([name + target_ext + "_generate_abstract_mock_area"] if mock_area != None and stage == "generate_abstract" else []),
             cmd = get_entrypoint_cmd(make_pattern, design_config, stage_config, Label("//:docker_shell"), make_targets, docker_image = "bazel-orfs/orfs_env:latest"),
             outs = outs.get(stage, []),
