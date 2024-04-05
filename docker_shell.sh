@@ -32,7 +32,9 @@ else
 fi
 
 export MAKE_PATTERN_PREFIXED=$PATH_PREFIX/$MAKE_PATTERN
-if [[ -x $MOCK_AREA_TCL ]]
+
+# Prefix MOCK_AREA_TCL if exists
+if [[ -n "${MOCK_AREA_TCL}" ]]
 then
 	export MOCK_AREA_TCL_PREFIXED=$PATH_PREFIX/$MOCK_AREA_TCL
 fi
