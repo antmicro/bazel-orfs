@@ -161,4 +161,5 @@ oci_tarball(
 sh_binary(
     name = "docker_shell",
     srcs = ["docker_shell.sh"],
+    visibility = ["//visibility:public"],
 )
