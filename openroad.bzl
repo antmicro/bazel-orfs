@@ -321,8 +321,8 @@ def mock_area_stages(
             stage_args = mock_area_stage_args[stage],
         )
         make_pattern = Label("//:" + stage + "-bazel.mk")
-        design_config = Label("//:" + name + "_mock_area_config.mk")
-        stage_config = Label("//:" + name + "_" + stage + "_mock_area_config.mk")
+        design_config = Label("@@//:" + name + "_mock_area_config.mk")
+        stage_config = Label("@@//:" + name + "_" + stage + "_mock_area_config.mk")
         make_targets = get_make_targets(stage, True, mock_area)
 
         native.genrule(
@@ -603,10 +603,10 @@ def build_openroad(
 
     # Make (local) targets
     make_script_template = Label("//:make_script.template.sh")
-    design_config = Label("//:" + target_name + "_config.mk")
+    design_config = Label("@@//:" + target_name + "_config.mk")
     for stage in stages:
         make_pattern = Label("//:" + stage + "-bazel.mk")
-        stage_config = Label("//:" + target_name + "_" + stage + "_config.mk")
+        stage_config = Label("@@//:" + target_name + "_" + stage + "_config.mk")
         make_targets = get_make_targets(stage, False, mock_area)
         entrypoint_cmd = get_entrypoint_cmd(make_pattern, design_config, stage_config, entrypoint = Label("//:orfs"))
 
