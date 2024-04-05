@@ -333,7 +333,7 @@ def mock_area_stages(
             tools = [Label("//:docker_shell")],
             srcs = [make_pattern, design_config, stage_config] +
                    stage_sources[stage] +
-                   ([name + "_" + stage, Label("mock_area.tcl")] if stage == "floorplan" else []) +
+                   ([name + "_" + stage, Label("//:mock_area.tcl")] if stage == "floorplan" else []) +
                    ([name + "_" + previous + "_mock_area"] if stage != "clock_period" else []) +
                    ([name + "_synth_mock_area"] if stage == "floorplan" else []),
             cmd = get_entrypoint_cmd(make_pattern, design_config, stage_config, Label("//:docker_shell"), make_targets, docker_image = "bazel-orfs/orfs_env:latest", mock_area = True),
