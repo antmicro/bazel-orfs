@@ -22,14 +22,26 @@ export FLOW_HOME="/OpenROAD-flow-scripts/flow/"
 export WORKSPACE_ORIGIN=$(dirname $(find $WORKSPACE_EXECROOT -maxdepth 1 -type l -exec realpath {} \; -quit))
 
 # Assume that when docker flow is called from external repository,
-# the path to make patterns will start with "external".
-# Take that into account and construct correct absolute path.
+# the path to dependencies from bazel-orfs workspace will start with "external".
+# Take that into account and construct correct absolute paths.
 if [[ $MAKE_PATTERN = external* ]]
 then
-	export MAKE_PATTERN_FIXED=$WORKSPACE_ROOT/$MAKE_PATTERN
+	export PATH_PREFIX=$WORKSPACE_ROOT
 else
-	export MAKE_PATTERN_FIXED=$WORKSPACE_EXECROOT/$MAKE_PATTERN
+	export PATH_PREFIX=$WORKSPACE_EXECROOT
 fi
+
+export MAKE_PATTERN_PREFIXED=$PATH_PREFIX/$MAKE_PATTERN
+if [[ -x $MOCK_AREA_TCL ]]
+then
+	export MOCK_AREA_TCL_PREFIXED=$PATH_PREFIX/$MOCK_AREA_TCL
+fi
+
+# Configs are always generated in execroot because they are generated in
+# the repository that uses bazel-orfs as dependency or in bazel-orfs itself
+export DESIGN_CONFIG_PREFIXED=$WORKSPACE_EXECROOT/$DESIGN_CONFIG
+export STAGE_CONFIG_PREFIXED=$WORKSPACE_EXECROOT/$STAGE_CONFIG
+
 # Most of these options below has to do with allowing to
 # run the OpenROAD GUI from within Docker.
 docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) \
@@ -43,9 +55,10 @@ docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) \
  -e XAUTHORITY=$XAUTH \
  -e BUILD_DIR=$WORKSPACE_EXECROOT \
  -e FLOW_HOME=$FLOW_HOME \
- -e DESIGN_CONFIG=$WORKSPACE_EXECROOT/$DESIGN_CONFIG \
- -e STAGE_CONFIG=$WORKSPACE_EXECROOT/$STAGE_CONFIG \
- -e MAKE_PATTERN=$MAKE_PATTERN_FIXED \
+ -e DESIGN_CONFIG=$DESIGN_CONFIG_PREFIXED \
+ -e STAGE_CONFIG=$STAGE_CONFIG_PREFIXED \
+ -e MAKE_PATTERN=$MAKE_PATTERN_PREFIXED \
+ -e MOCK_AREA_TCL=$MOCK_AREA_TCL_PREFIXED \
  -e WORK_HOME=$WORKSPACE_EXECROOT/$RULEDIR \
  -v $WORKSPACE_ROOT:$WORKSPACE_ROOT \
  -v $WORKSPACE_ORIGIN:$WORKSPACE_ORIGIN \
