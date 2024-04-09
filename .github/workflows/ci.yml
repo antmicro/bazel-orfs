@@ -36,6 +36,7 @@ jobs:
           - "tag_array_64x184_generate_abstract"
           - "L1MetadataArray_test_generate_abstract"
           - "L1MetadataArray_full_generate_abstract"
+          - "L1MetadataArray_test_gds_final"
           - "tag_array_64x184_memory"
     env:
       DEBIAN_FRONTEND: "noninteractive"
@@ -96,9 +97,24 @@ jobs:
       - name: Checkout bazel-orfs
         uses: actions/checkout@v4
       - name: build local stage targets - tag_array_64x184
-        run: .github/scripts/build_tag_array.sh
-      - name: build local stage targets - L1MetadataArray
-        run: .github/scripts/build_L1MetadataArray.sh
+        env:
+          TARGET: tag_array_64x184
+        run: .github/scripts/build_local_target.sh
+      - name: build local stage targets - lb_32x128
+        env:
+          TARGET: tag_array_64x184
+        run: .github/scripts/build_local_target.sh
+      - name: build local stage targets - L1MetadataArray_test
+        env:
+          TARGET: L1MetadataArray_test
+        run: .github/scripts/build_local_target.sh
+      - name: build local stage targets - L1MetadataArray_final
+        env:
+          TARGET: L1MetadataArray_test_gds
+          STAGES: grt route final
+        run: |
+          cp -r bazel-bin/results/asap7/L1MetadataArray/test bazel-bin/results/asap7/L1MetadataArray/test_gds
+          .github/scripts/build_local_target.sh
 
   test-stage-make-targets:
     name: Run ORFS using stage targets and _make scrips
@@ -109,6 +125,7 @@ jobs:
     env:
       DEBIAN_FRONTEND: "noninteractive"
       STAGES: "floorplan generate_abstract"
+      TARGET: tag_array_64x184
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -125,7 +142,7 @@ jobs:
       - name: build make target
         env:
           SKIP_RUN: 1
-        run: .github/scripts/build_tag_array.sh
+        run: .github/scripts/build_local_target.sh
       - name: set env
         run: |
           echo "DOCKER_ARGS=-v $(realpath ~/.cache):$(realpath ~/.cache)" >> $GITHUB_ENV
@@ -133,6 +150,7 @@ jobs:
       - name: run make target
         run: |
           ./docker_shell.sh "export SKIP_BUILD=1
+            export TARGET=$TARGET
             export STAGES=\"$STAGES\"
             cd "'$WORK_HOME
-            $WORK_HOME/.github/scripts/build_tag_array.sh'
+            $WORK_HOME/.github/scripts/build_local_target.sh'
