@@ -290,8 +290,10 @@ def mock_area_stages(
     # Write ORFS options for mock_area targets
     # Filter out floorplan options affecting Chip Area and default flow variant
     floorplan_args = [s for s in stage_args["floorplan"] if not any([sub in s for sub in ("DIE_AREA", "CORE_AREA", "CORE_UTILIZATION")])]
+    generate_abstract_args = [s for s in stage_args["generate_abstract"] if not any(["ABSTRACT_SOURCE" in s])]
     mock_area_stage_args = dict(stage_args)
     mock_area_stage_args["floorplan"] = floorplan_args
+    mock_area_stage_args["generate_abstract"] = generate_abstract_args
 
     # Add mock_area-specific options
     mock_area_env_list = ["DEFAULT_FLOW_VARIANT=" + variant]
@@ -321,7 +323,7 @@ def mock_area_stages(
             name = name + "_" + stage + "_mock_area_config",
             stage = stage,
             srcs = stage_cfg_srcs,
-            stage_args = mock_area_stage_args[stage] + (["FLOW_VARIANT=mock_area"] if (stage != "generate_abstract") else []),
+            stage_args = mock_area_stage_args[stage] + ["FLOW_VARIANT=mock_area"],
         )
         make_pattern = Label("//:" + stage + "-bazel.mk")
         design_config = Label("@@//:" + name + "_mock_area_config.mk")
