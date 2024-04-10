@@ -211,7 +211,10 @@ def get_make_targets(
       string with space-separated make targets to be executed in ORFS environment
     """
     targets = "bazel-" + stage
-    if (mock_area != None and stage == "generate_abstract"):
+    # `generate_abstract` from "regular" flow should copy mocked LEF file to the regular flow build directory
+    # Perform additional `bazel-generate_abstract_mock_area` make target only for `generate_abstract` stages
+    # outside of `mock_area` flow context
+    if (not do_mock_area and mock_area != None and stage == "generate_abstract"):
         targets += "_mock_area"
     elif (do_mock_area and stage == "floorplan"):
         targets += "-mock_area"
