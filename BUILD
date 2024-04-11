@@ -54,7 +54,7 @@ build_openroad(
     io_constraints = ":io-sram",
     mock_abstract = True,
     mock_area = 0.20,
-    mock_stage = "grt",
+    mock_stage = "floorplan",
     sdc_constraints = ":constraints-sram",
     stage_args = {
         "floorplan": [
