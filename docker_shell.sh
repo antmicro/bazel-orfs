@@ -64,6 +64,7 @@ docker run --rm -u $(id -u ${USER}):$(id -g ${USER}) \
  -e WORK_HOME=$WORKSPACE_EXECROOT/$RULEDIR \
  -v $WORKSPACE_ROOT:$WORKSPACE_ROOT \
  -v $WORKSPACE_ORIGIN:$WORKSPACE_ORIGIN \
+ -v /data/work/megaboom/bazel-orfs:/data/work/megaboom/bazel-orfs \
  --network host \
  $DOCKER_INTERACTIVE \
  $DOCKER_ARGS \
