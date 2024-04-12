@@ -223,6 +223,12 @@ def get_make_targets(
 
     return targets
 
+def get_docker_flow_path(label):
+    return "$(location " + str(label) + ")"
+
+def get_local_flow_path(label):
+    return "\\$$\\(rlocation $(rlocationpath " + str(label) + ")\\)"
+
 def get_entrypoint_cmd(
         make_pattern,
         design_config,
@@ -248,20 +254,24 @@ def get_entrypoint_cmd(
     """
 
     cmd = ""
+    path_constructor = None
+    entrypoint = None
+    if (use_docker_flow):
+        path_constructor = get_docker_flow_path
+        entrypoint = Label("//:docker_shell")
+    else:
+        path_constructor = get_local_flow_path
+        entrypoint = Label("//:orfs")
+
     if (docker_image != None):
         cmd += "OR_IMAGE=" + docker_image
-    cmd += " DESIGN_CONFIG=$(location " + str(design_config) + ")"
-    cmd += " STAGE_CONFIG=$(location " + str(stage_config) + ")"
-    cmd += " MAKE_PATTERN=$(location " + str(make_pattern) + ")"
+    cmd += " DESIGN_CONFIG=" + path_constructor(design_config)
+    cmd += " STAGE_CONFIG=" + path_constructor(stage_config)
+    cmd += " MAKE_PATTERN=" + path_constructor(make_pattern)
     if (mock_area):
-        cmd += " MOCK_AREA_TCL=$(location " + str(Label("//:mock_area.tcl")) + ")"
+        cmd += " MOCK_AREA_TCL=" + path_constructor(Label("//:mock_area.tcl"))
     cmd += " RULEDIR=$(RULEDIR)"
-    if (use_docker_flow):
-        cmd += " $(location " + str(Label("//:docker_shell")) + ")"
-    else:
-        # This command will land in a shell script
-        # We expect to find "$(rlocation <orfs target>)" there
-        cmd += " \\$$\\(rlocation $(rlocationpath " + str(Label("//:orfs")) + ")\\)"
+    cmd += " " + path_constructor(entrypoint)
     cmd += " make "
     if (make_targets != None):
         cmd += make_targets
