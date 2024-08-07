@@ -217,9 +217,10 @@ def _deps_impl(ctx):
         template = ctx.file._deploy_template,
         output = exe,
         substitutions = {
-            "${GENFILES}": " ".join([f.short_path for f in ctx.attr.src[OrfsDepInfo].files]),
-            "${CONFIG}": ctx.attr.src[OrfsDepInfo].config.short_path,
-            "${MAKE}": ctx.attr.src[OrfsDepInfo].make.short_path,
+            '${GENFILES}': ' '.join([f.short_path for f in ctx.attr.src[OrfsDepInfo].files]),
+            '${CONFIG}': ctx.attr.src[OrfsDepInfo].config.short_path,
+            '${MAKE}': ctx.attr.src[OrfsDepInfo].make.short_path,
+            '"$@"': '--dependency "$@"',
         },
     )
     return [

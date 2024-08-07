@@ -10,6 +10,7 @@ usage() {
 main() {
   local progname
   local dst
+  local dep
   local config
   local genfiles
   local make
@@ -35,6 +36,10 @@ main() {
         shift
         shift
       ;;
+      -d|--dependency)
+        dep="true"
+        shift
+      ;;
       *)
         dst="$1"
         shift
@@ -58,13 +63,19 @@ main() {
   fi
 
   mkdir --parents "$dst"
-  cp --recursive --parents --target-directory "$dst" -- *
+  if [ -n "$dep" ]; then
+    cp --update --recursive --parents --target-directory "$dst" -- *
+  else
+    cp --recursive --parents --target-directory "$dst" -- *
+  fi
 
   for file in $genfiles; do
     if [ -L "$dst/$file" ]; then
       unlink "$dst/$file"
     fi
-    cp --force --dereference --no-preserve=all --parents --target-directory "$dst" "$file"
+    if [ -z "$dep" ] || [ ! -e "$dst/$file" ]; then
+        cp --force --dereference --no-preserve=all --parents --target-directory "$dst" "$file"
+    fi
   done
 
   cp --force "$make" "$dst/make"
