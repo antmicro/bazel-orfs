@@ -21,6 +21,8 @@ def _impl(repository_ctx):
             image,
         ],
     )
+    print("Create STDOUT:", created.stdout)
+    print("Create STDERR:", created.stderr)
     if created.return_code != 0:
         fail("Failed to create stopped container: {}".format(created.stderr), created.return_code)
     container_id = created.stdout.strip()
@@ -32,6 +34,8 @@ def _impl(repository_ctx):
             ".",
         ],
     )
+    print("Copy STDOUT:", cp.stdout)
+    print("Copy STDERR:", cp.stderr)
     remove = repository_ctx.execute(
         [
             docker,
